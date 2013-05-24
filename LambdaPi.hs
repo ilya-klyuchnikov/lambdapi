@@ -1,5 +1,6 @@
 -- install readline
---module LP where
+-- ghc -o lp LambdaPi.hs to make executable
+module Main where
 import Prelude hiding (print)
 import Control.Monad.Error
 import Data.List
