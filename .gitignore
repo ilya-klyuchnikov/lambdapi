@@ -1,3 +1,4 @@
 lp
-LambdaPi.hi
-LambdaPi.o
+*.hi
+*.o
+LambdaPi
