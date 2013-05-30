@@ -13,6 +13,8 @@ import Text.ParserCombinators.Parsec.Token
 import Text.ParserCombinators.Parsec.Language
 import System.Console.Readline
 import System.IO hiding (print)
+import System.IO.Error
+
 putstrln x = putStrLn x
 simplyTyped = makeTokenParser (haskellStyle { identStart = letter <|> P.char '_',
                                               reservedNames = ["let", "assume", "putStrLn"] })
@@ -313,7 +315,7 @@ readevalprint :: Interpreter i c v t tinf inf -> State v inf -> IO ()
 readevalprint int state@(inter, out, ve, te) =
   let rec int state =
         do
-          x <- catch
+          x <- catchIOError
                  (if inter
                   then readline (iprompt int) 
                   else fmap Just getLine)
