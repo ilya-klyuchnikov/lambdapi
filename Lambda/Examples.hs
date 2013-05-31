@@ -13,10 +13,10 @@ tfree a  =  TFree (Global a)
 free x   =  Inf (Free (Global x))
  
 term1    =  Ann id' (Fun (tfree "a") (tfree "a")) :@: free "y" 
-term2    =  Ann const' (Fun  (Fun (tfree "b") (tfree "b"))
+term2    =  (Ann const' (Fun  (Fun (tfree "b") (tfree "b"))
                              (Fun  (tfree "a")
                                    (Fun (tfree "b") (tfree "b"))))
-            :@: id' :@: free "y" 
+            :@: id') :@: (free "y")
  
 env1     =  [  (Global "y", HasType (tfree "a")),
                (Global "a", HasKind Star)]
