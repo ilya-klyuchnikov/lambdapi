@@ -1,7 +1,8 @@
-see http://sneezy.cs.nott.ac.uk/darcs/LambdaPi/ and http://www.andres-loeh.de/LambdaPi/
+## Dependently Typed Lambda Calculus
 
-How to read code:
+This project is reorganization of the source code for the paper 
+[A Tutorial Implementation of a Dependently Typed Lambda Calculus](http://www.andres-loeh.de/LambdaPi/).
 
-1. LambdaAST (2.4 Abstract Syntax)
-2. LambdaEval (2.4 Evaluation)
-3. 
+An interested reader may also look at [this darcs repo](http://sneezy.cs.nott.ac.uk/darcs/LambdaPi/).
+
+The goal of this project is to make reading and navigation of the code as simple as possible.
