@@ -8,6 +8,13 @@ import Data.Char
 import Text.PrettyPrint.HughesPJ hiding (parens)
 import qualified Text.PrettyPrint.HughesPJ as PP
 
+data Stmt i tinf = Let String i           --  let x = t
+                   | Assume [(String,tinf)] --  assume x :: t, assume x :: *
+                   | Eval i
+                   | PutStrLn String        --  lhs2TeX hacking, allow to print "magic" string
+                   | Out String             --  more lhs2TeX hacking, allow to print to files
+    deriving (Show)
+
 -- 2.4. Implementation
 -- Simply typed LC
 
@@ -55,8 +62,8 @@ type Context = [(Name, Info)]
 type Env = [Value]
 
 type NameEnv v = [(Name, v)]
-type Ctx inf = [(Name, inf)]
-type State v inf = (Bool, String, NameEnv v, Ctx inf)
+--type Ctx inf = [(Name, inf)]
+--type State v inf = (Bool, String, NameEnv v, Ctx inf)
 
 type Result a = Either String a
 
@@ -382,170 +389,10 @@ quote0_ = quote_ 0
 
 ----- NEW ----
 
-iType0_ :: (NameEnv Value_,Context_) -> ITerm_ -> Result Type_
-iType0_ = iType_ 0
-iType_ :: Int -> (NameEnv Value_,Context_) -> ITerm_ -> Result Type_
-iType_ ii g (Ann_ e tyt )
-  =     do  cType_  ii g tyt VStar_
-            let ty = cEval_ tyt (fst g, [])  
-            cType_ ii g e ty
-            return ty
-iType_ ii g Star_   
-   =  return VStar_   
-iType_ ii g (Pi_ tyt tyt')  
-   =  do  cType_ ii g tyt VStar_    
-          let ty = cEval_ tyt (fst g, [])  
-          cType_  (ii + 1) ((\ (d,g) -> (d,  ((Local ii, ty) : g))) g)  
-                    (cSubst_ 0 (Free_ (Local ii)) tyt') VStar_  
-          return VStar_   
-iType_ ii g (Free_ x)
-  =     case lookup x (snd g) of
-          Just ty        ->  return ty
-          Nothing        ->  throwError ("unknown identifier: " ++ render (iPrint_ 0 0 (Free_ x)))
-iType_ ii g (e1 :$: e2)
-  =     do  si <- iType_ ii g e1
-            case si of
-              VPi_  ty ty'  ->  do  cType_ ii g e2 ty
-                                    return ( ty' (cEval_ e2 (fst g, [])))
-              _                  ->  throwError "illegal application"
-iType_ ii g Nat_                  =  return VStar_
-iType_ ii g (NatElim_ m mz ms n)  =
-  do  cType_ ii g m (VPi_ VNat_ (const VStar_))
-      let mVal  = cEval_ m (fst g, []) 
-      cType_ ii g mz (mVal `vapp_` VZero_)
-      cType_ ii g ms (VPi_ VNat_ (\ k -> VPi_ (mVal `vapp_` k) (\ _ -> mVal `vapp_` VSucc_ k)))
-      cType_ ii g n VNat_
-      let nVal = cEval_ n (fst g, [])
-      return (mVal `vapp_` nVal)
-iType_ ii g (Vec_ a n) =
-  do  cType_ ii g a  VStar_
-      cType_ ii g n  VNat_
-      return VStar_
-iType_ ii g (VecElim_ a m mn mc n vs) =
-  do  cType_ ii g a VStar_
-      let aVal = cEval_ a (fst g, [])
-      cType_ ii g m
-        (  VPi_ VNat_ (\n -> VPi_ (VVec_ aVal n) (\ _ -> VStar_)))
-      let mVal = cEval_ m (fst g, [])
-      cType_ ii g mn (foldl vapp_ mVal [VZero_, VNil_ aVal])
-      cType_ ii g mc
-        (  VPi_ VNat_ (\ n -> 
-           VPi_ aVal (\ y -> 
-           VPi_ (VVec_ aVal n) (\ ys ->
-           VPi_ (foldl vapp_ mVal [n, ys]) (\ _ ->
-           (foldl vapp_ mVal [VSucc_ n, VCons_ aVal n y ys]))))))
-      cType_ ii g n VNat_
-      let nVal = cEval_ n (fst g, [])
-      cType_ ii g vs (VVec_ aVal nVal)
-      let vsVal = cEval_ vs (fst g, [])
-      return (foldl vapp_ mVal [nVal, vsVal])
-iType_ i g (Eq_ a x y) =
-  do  cType_ i g a VStar_
-      let aVal = cEval_ a (fst g, [])
-      cType_ i g x aVal
-      cType_ i g y aVal
-      return VStar_
-iType_ i g (EqElim_ a m mr x y eq) =
-  do  cType_ i g a VStar_
-      let aVal = cEval_ a (fst g, [])
-      cType_ i g m
-        (VPi_ aVal (\ x ->
-         VPi_ aVal (\ y ->
-         VPi_ (VEq_ aVal x y) (\ _ -> VStar_)))) 
-      let mVal = cEval_ m (fst g, [])
-      cType_ i g mr
-        (VPi_ aVal (\ x ->
-         foldl vapp_ mVal [x, x]))
-      cType_ i g x aVal
-      let xVal = cEval_ x (fst g, [])
-      cType_ i g y aVal
-      let yVal = cEval_ y (fst g, [])
-      cType_ i g eq (VEq_ aVal xVal yVal)
-      let eqVal = cEval_ eq (fst g, [])
-      return (foldl vapp_ mVal [xVal, yVal])
-
-cType_ :: Int -> (NameEnv Value_,Context_) -> CTerm_ -> Type_ -> Result ()
-cType_ ii g (Inf_ e) v 
-  =     do  v' <- iType_ ii g e
-            unless ( quote0_ v == quote0_ v') (throwError ("type mismatch:\n" ++ "type inferred:  " ++ render (cPrint_ 0 0 (quote0_ v')) ++ "\n" ++ "type expected:  " ++ render (cPrint_ 0 0 (quote0_ v)) ++ "\n" ++ "for expression: " ++ render (iPrint_ 0 0 e)))
-cType_ ii g (Lam_ e) ( VPi_ ty ty')
-  =     cType_  (ii + 1) ((\ (d,g) -> (d,  ((Local ii, ty ) : g))) g)
-                (cSubst_ 0 (Free_ (Local ii)) e) ( ty' (vfree_ (Local ii))) 
-cType_ ii g Zero_      VNat_  =  return ()
-cType_ ii g (Succ_ k)  VNat_  =  cType_ ii g k VNat_
-cType_ ii g (Nil_ a) (VVec_ bVal VZero_) =
-  do  cType_ ii g a VStar_
-      let aVal = cEval_ a (fst g, []) 
-      unless  (quote0_ aVal == quote0_ bVal) 
-              (throwError "type mismatch")
-cType_ ii g (Cons_ a n x xs) (VVec_ bVal (VSucc_ k)) =
-  do  cType_ ii g a VStar_
-      let aVal = cEval_ a (fst g, [])
-      unless  (quote0_ aVal == quote0_ bVal)
-              (throwError "type mismatch")
-      cType_ ii g n VNat_
-      let nVal = cEval_ n (fst g, [])
-      unless  (quote0_ nVal == quote0_ k)
-              (throwError "number mismatch")
-      cType_ ii g x aVal
-      cType_ ii g xs (VVec_ bVal k)
-cType_ ii g (Refl_ a z) (VEq_ bVal xVal yVal) =
-  do  cType_ ii g a VStar_
-      let aVal = cEval_ a (fst g, [])
-      unless  (quote0_ aVal == quote0_ bVal)
-              (throwError "type mismatch")
-      cType_ ii g z aVal
-      let zVal = cEval_ z (fst g, [])
-      unless  (quote0_ zVal == quote0_ xVal && quote0_ zVal == quote0_ yVal)
-              (throwError "type mismatch")
-cType_ ii g _ _
-  =     throwError "type mismatch"
 data Nat = Zero | Succ Nat
 plus :: Nat -> Nat -> Nat 
 plus Zero n      = n 
 plus (Succ k) n  = Succ (plus k n) 
-
---- printing
-
-iPrint_ :: Int -> Int -> ITerm_ -> Doc
-iPrint_ p ii (Ann_ c ty)       =  parensIf (p > 1) (cPrint_ 2 ii c <> text " :: " <> cPrint_ 0 ii ty)
-iPrint_ p ii Star_             =  text "*"
-iPrint_ p ii (Pi_ d (Inf_ (Pi_ d' r)))
-                               =  parensIf (p > 0) (nestedForall_ (ii + 2) [(ii + 1, d'), (ii, d)] r)
-iPrint_ p ii (Pi_ d r)         =  parensIf (p > 0) (sep [text "forall " <> text (vars !! ii) <> text " :: " <> cPrint_ 0 ii d <> text " .", cPrint_ 0 (ii + 1) r])
-iPrint_ p ii (Bound_ k)        =  text (vars !! (ii - k - 1))
-iPrint_ p ii (Free_ (Global s))=  text s
-iPrint_ p ii (i :$: c)         =  parensIf (p > 2) (sep [iPrint_ 2 ii i, nest 2 (cPrint_ 3 ii c)])
-iPrint_ p ii Nat_              =  text "Nat"
-iPrint_ p ii (NatElim_ m z s n)=  iPrint_ p ii (Free_ (Global "natElim") :$: m :$: z :$: s :$: n)
-iPrint_ p ii (Vec_ a n)        =  iPrint_ p ii (Free_ (Global "Vec") :$: a :$: n)
-iPrint_ p ii (VecElim_ a m mn mc n xs)
-                               =  iPrint_ p ii (Free_ (Global "vecElim") :$: a :$: m :$: mn :$: mc :$: n :$: xs)
-iPrint_ p ii (Eq_ a x y)       =  iPrint_ p ii (Free_ (Global "Eq") :$: a :$: x :$: y)
-iPrint_ p ii (EqElim_ a m mr x y eq)
-                               =  iPrint_ p ii (Free_ (Global "eqElim") :$: a :$: m :$: mr :$: x :$: y :$: eq)
-iPrint_ p ii (Fin_ n)          =  iPrint_ p ii (Free_ (Global "Fin") :$: n)
-iPrint_ p ii (FinElim_ m mz ms n f)
-                               =  iPrint_ p ii (Free_ (Global "finElim") :$: m :$: mz :$: ms :$: n :$: f)
-iPrint_ p ii x                 =  text ("[" ++ show x ++ "]")
-cPrint_ :: Int -> Int -> CTerm_ -> Doc
-cPrint_ p ii (Inf_ i)    = iPrint_ p ii i
-cPrint_ p ii (Lam_ c)    = parensIf (p > 0) (text "\\ " <> text (vars !! ii) <> text " -> " <> cPrint_ 0 (ii + 1) c)
-cPrint_ p ii Zero_       = fromNat_ 0 ii Zero_     --  text "Zero"
-cPrint_ p ii (Succ_ n)   = fromNat_ 0 ii (Succ_ n) --  iPrint_ p ii (Free_ (Global "Succ") :$: n)
-cPrint_ p ii (Nil_ a)    = iPrint_ p ii (Free_ (Global "Nil") :$: a)
-cPrint_ p ii (Cons_ a n x xs) =
-                           iPrint_ p ii (Free_ (Global "Cons") :$: a :$: n :$: x :$: xs)
-cPrint_ p ii (Refl_ a x) = iPrint_ p ii (Free_ (Global "Refl") :$: a :$: x)
-cPrint_ p ii (FZero_ n)  = iPrint_ p ii (Free_ (Global "FZero") :$: n)
-cPrint_ p ii (FSucc_ n f)= iPrint_ p ii (Free_ (Global "FSucc") :$: n :$: f)
-fromNat_ :: Int -> Int -> CTerm_ -> Doc
-fromNat_ n ii Zero_ = int n
-fromNat_ n ii (Succ_ k) = fromNat_ (n + 1) ii k
-fromNat_ n ii t = parensIf True (int n <> text " + " <> cPrint_ 0 ii t)
-nestedForall_ :: Int -> [(Int, CTerm_)] -> CTerm_ -> Doc
-nestedForall_ ii ds (Inf_ (Pi_ d r)) = nestedForall_ (ii + 1) ((ii, d) : ds) r
-nestedForall_ ii ds x                = sep [text "forall " <> sep [parensIf True (text (vars !! n) <> text " :: " <> cPrint_ 0 n d) | (n,d) <- reverse ds] <> text " .", cPrint_ 0 ii x]
 
 parensIf :: Bool -> Doc -> Doc
 parensIf True  = PP.parens
@@ -553,4 +400,5 @@ parensIf False = id
 
 vars :: [String]
 vars = [ c : n | n <- "" : map show [1..], c <- ['x','y','z'] ++ ['a'..'w'] ]
+
 

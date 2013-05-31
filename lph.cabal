@@ -1,0 +1,11 @@
+Name: lph
+Version: 0.1
+
+Cabal-Version: >= 1.2
+
+build-type: Simple
+
+Executable lph
+  Main-is: Main.hs
+                   
+  Build-Depends:   pretty >= 1.1.1.0, base >= 4.6, mtl >= 2.1.2, readline >= 1.0.3.0, parsec >= 3.1.3

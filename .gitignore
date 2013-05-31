@@ -2,3 +2,4 @@ lp
 *.hi
 *.o
 LambdaPi
+dist/
