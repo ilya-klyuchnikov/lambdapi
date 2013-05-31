@@ -1,8 +1,8 @@
-module LambdaCheck where
+module Lambda.Check where
 
 import Control.Monad.Error
 
-import LambdaAST
+import Lambda.AST
 import Common
 
 cKind :: Context -> Type -> Kind -> Result ()

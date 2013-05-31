@@ -1,4 +1,4 @@
-module LambdaAST where
+module Lambda.AST where
 
 import Common
 

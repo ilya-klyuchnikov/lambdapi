@@ -1,4 +1,4 @@
-module LambdaPiAST where
+module LambdaPi.AST where
 
 import Common
 

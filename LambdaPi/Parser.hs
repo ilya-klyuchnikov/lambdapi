@@ -1,4 +1,4 @@
-module LambdaPiParser where
+module LambdaPi.Parser where
 
 import Data.List
 import Text.ParserCombinators.Parsec hiding (parse, State)
@@ -7,7 +7,7 @@ import Text.ParserCombinators.Parsec.Token
 import Text.ParserCombinators.Parsec.Language
 
 import Common
-import LambdaPiAST
+import LambdaPi.AST
 
 lambdaPi = makeTokenParser (haskellStyle { identStart = letter <|> P.char '_',
                                            reservedNames = ["forall", "let", "assume", "putStrLn", "out"] })

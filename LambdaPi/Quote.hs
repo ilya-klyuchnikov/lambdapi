@@ -1,7 +1,7 @@
-module LambdaPiQuote where
+module LambdaPi.Quote where
 
 import Common
-import LambdaPiAST
+import LambdaPi.AST
 
 instance Show Value_ where
   show = show . quote0_

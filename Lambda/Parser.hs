@@ -1,4 +1,4 @@
-module LambdaParser where
+module Lambda.Parser where
 
 import Data.List
 import Text.ParserCombinators.Parsec hiding (parse, State)
@@ -7,7 +7,7 @@ import Text.ParserCombinators.Parsec.Token
 import Text.ParserCombinators.Parsec.Language
 
 import Common
-import LambdaAST
+import Lambda.AST
 
 simplyTyped = makeTokenParser (haskellStyle { identStart = letter <|> P.char '_',
                                               reservedNames = ["let", "assume", "putStrLn"] })

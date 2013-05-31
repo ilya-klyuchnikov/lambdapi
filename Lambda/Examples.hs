@@ -1,9 +1,10 @@
-module LambdaExamples where
+module Lambda.Examples where
 
-import LambdaAST
-import LambdaEval
-import LambdaCheck
-import LambdaQuote
+import Common
+import Lambda.AST
+import Lambda.Eval
+import Lambda.Check
+import Lambda.Quote
 
 id'      =  Lam (Inf (Bound 0))
 const'   =  Lam (Lam (Inf (Bound 1)))

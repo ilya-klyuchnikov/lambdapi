@@ -1,14 +1,14 @@
-module LambdaPiMain where
+module LambdaPi.Main where
 
 import Common
 import REPL
 
-import LambdaPiAST
-import LambdaPiEval
-import LambdaPiCheck
-import LambdaPiQuote
-import LambdaPiParser
-import LambdaPiPrinter
+import LambdaPi.AST
+import LambdaPi.Eval
+import LambdaPi.Check
+import LambdaPi.Quote
+import LambdaPi.Parser
+import LambdaPi.Printer
 
 lpte :: Ctx Value_
 lpte =      [(Global "Zero", VNat_),

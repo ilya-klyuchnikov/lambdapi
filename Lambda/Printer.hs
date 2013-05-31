@@ -1,9 +1,9 @@
-module LambdaPrinter where
+module Lambda.Printer where
 
 import Text.PrettyPrint.HughesPJ hiding (parens)
 
 import Common
-import LambdaAST
+import Lambda.AST
 
 tPrint :: Int -> Type -> Doc
 tPrint p (TFree (Global s))  =  text s

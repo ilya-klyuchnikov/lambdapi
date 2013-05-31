@@ -1,7 +1,7 @@
-module LambdaPiEval where
+module LambdaPi.Eval where
 
 import Common
-import LambdaPiAST
+import LambdaPi.AST
 
 cEval_ :: CTerm_ -> (NameEnv Value_,Env_) -> Value_
 cEval_ (Inf_  ii)    d  =  iEval_ ii d

@@ -1,14 +1,14 @@
-module LambdaPiCheck where
+module LambdaPi.Check where
 
 import Control.Monad.Error
 
 import Text.PrettyPrint.HughesPJ hiding (parens)
 
 import Common
-import LambdaPiAST
-import LambdaPiEval
-import LambdaPiQuote
-import LambdaPiPrinter
+import LambdaPi.AST
+import LambdaPi.Eval
+import LambdaPi.Quote
+import LambdaPi.Printer
 
 iType0_ :: (NameEnv Value_,Context_) -> ITerm_ -> Result Type_
 iType0_ = iType_ 0

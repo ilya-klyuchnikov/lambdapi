@@ -1,7 +1,7 @@
-module LambdaQuote where
+module Lambda.Quote where
 
 import Common
-import LambdaAST
+import Lambda.AST
 
 quote0 :: Value -> CTerm
 quote0 = quote 0

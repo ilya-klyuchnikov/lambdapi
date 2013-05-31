@@ -1,7 +1,7 @@
-module LambdaEval where
+module Lambda.Eval where
 
 import Common
-import LambdaAST
+import Lambda.AST
 
 iEval :: ITerm -> (NameEnv Value, Env) -> Value
 iEval (Ann  e _)    d  =  cEval e d

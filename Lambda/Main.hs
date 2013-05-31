@@ -1,14 +1,14 @@
-module LambdaMain where
+module Lambda.Main where
 
 import Common
 import REPL
 
-import LambdaAST
-import LambdaEval
-import LambdaCheck
-import LambdaQuote
-import LambdaParser
-import LambdaPrinter
+import Lambda.AST
+import Lambda.Eval
+import Lambda.Check
+import Lambda.Quote
+import Lambda.Parser
+import Lambda.Printer
 
 st :: Interpreter ITerm CTerm Value Type Info Info
 st = I { iname = "the simply typed lambda calculus",
