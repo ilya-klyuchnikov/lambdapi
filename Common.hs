@@ -12,18 +12,8 @@ data Name
 data Type
    =  TFree  Name
    |  Fun    Type Type
-  deriving (Show, Eq)
+  deriving (Show, Eq) 
 
-
-data Kind = Star
-  deriving (Show)
- 
-data Info
-   =  HasKind  Kind
-   |  HasType  Type 
-  deriving (Show)
-
-type Context = [(Name, Info)]
 type Result a = Either String a
 type NameEnv v = [(Name, v)]
 

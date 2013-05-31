@@ -23,7 +23,15 @@ data Neutral
    =  NFree  Name
    |  NApp   Neutral Value
 
+data Kind = Star
+  deriving (Show)
 
+data Info
+   =  HasKind  Kind
+   |  HasType  Type 
+  deriving (Show)
+
+type Context = [(Name, Info)]
 type Env = [Value]
 
 -- creates the value corresponding to a free variable
