@@ -1,23 +1,14 @@
 module LambdaParser where
 
-import Prelude hiding (print)
-import Control.Monad.Error
 import Data.List
-import Data.Char
-import Text.PrettyPrint.HughesPJ hiding (parens)
-import qualified Text.PrettyPrint.HughesPJ as PP
 import Text.ParserCombinators.Parsec hiding (parse, State)
 import qualified Text.ParserCombinators.Parsec as P
 import Text.ParserCombinators.Parsec.Token
 import Text.ParserCombinators.Parsec.Language
-import System.Console.Readline
-import System.IO hiding (print)
-import System.IO.Error hiding (try)
 
 import Common
 import LambdaAST
 
-putstrln x = putStrLn x
 simplyTyped = makeTokenParser (haskellStyle { identStart = letter <|> P.char '_',
                                               reservedNames = ["let", "assume", "putStrLn"] })
 parseBindings :: CharParser () ([String], [Info])
@@ -130,7 +121,3 @@ parseLam e =
          t <- parseCTerm 0 (reverse xs ++ e)
          --  reserved simplyTyped "."
          return (iterate Lam t !! length xs)
-parseIO :: String -> CharParser () a -> String -> IO (Maybe a)
-parseIO f p x = case P.parse (whiteSpace simplyTyped >> p >>= \ x -> eof >> return x) f x of
-                  Left e  -> putStrLn (show e) >> return Nothing
-                  Right r -> return (Just r)

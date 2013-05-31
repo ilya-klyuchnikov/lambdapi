@@ -1,7 +1,6 @@
 module LambdaPiQuote where
 
 import Common
-import LambdaAST
 import LambdaPiAST
 
 instance Show Value_ where
