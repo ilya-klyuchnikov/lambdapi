@@ -8,7 +8,10 @@ import Text.ParserCombinators.Parsec.Language
 
 import Common
 import LambdaPiAST
-import LambdaParser
+
+lambdaPi = makeTokenParser (haskellStyle { identStart = letter <|> P.char '_',
+                                           reservedNames = ["forall", "let", "assume", "putStrLn", "out"] })
+
 
 parseStmt_ :: [String] -> CharParser () (Stmt ITerm_ CTerm_)
 parseStmt_ e =

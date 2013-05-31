@@ -20,15 +20,12 @@ import LambdaAST
 putstrln x = putStrLn x
 simplyTyped = makeTokenParser (haskellStyle { identStart = letter <|> P.char '_',
                                               reservedNames = ["let", "assume", "putStrLn"] })
-lambdaPi = makeTokenParser (haskellStyle { identStart = letter <|> P.char '_',
-                                           reservedNames = ["forall", "let", "assume", "putStrLn", "out"] })
-
 parseBindings :: CharParser () ([String], [Info])
 parseBindings = 
                    (let rec :: [String] -> [Info] -> CharParser () ([String], [Info])
                         rec e ts =
                           do
-                           (x,t) <- parens lambdaPi
+                           (x,t) <- parens simplyTyped
                                       (do
                                          x <- identifier simplyTyped 
                                          reserved simplyTyped "::"
@@ -43,6 +40,7 @@ parseBindings =
                        return ([x], [t])
   where
     pInfo = fmap HasType (parseType 0 []) <|> fmap (const (HasKind Star)) (reserved simplyTyped "*")
+
 parseStmt :: [String] -> CharParser () (Stmt ITerm Info)
 parseStmt e =
       do
@@ -60,10 +58,11 @@ parseStmt e =
         x <- stringLiteral simplyTyped
         return (PutStrLn x)
   <|> do
-        reserved lambdaPi "out"
+        reserved simplyTyped "out"
         x <- option "" (stringLiteral simplyTyped)
         return (Out x)
   <|> fmap Eval (parseITerm 0 e)
+
 parseType :: Int -> [String] -> CharParser () Type
 parseType 0 e =
   try
@@ -81,6 +80,7 @@ parseType 1 e =
         x <- identifier simplyTyped
         return (TFree (Global x))
   <|> parens simplyTyped (parseType 0 e)
+
 parseITerm :: Int -> [String] -> CharParser () ITerm
 parseITerm 0 e =
   try

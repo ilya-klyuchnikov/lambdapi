@@ -1,4 +1,4 @@
-module Main where
+module Mains where
 
 import Prelude hiding (print)
 import Control.Monad.Error
@@ -276,5 +276,3 @@ lpassume state@(inter, out, ve, te) x t =
 it = "it"
 process :: String -> String
 process = unlines . map (\ x -> "< " ++ x) . lines
-main :: IO ()
-main = repLP True
