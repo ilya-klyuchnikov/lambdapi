@@ -1,4 +1,4 @@
-module Parser where
+module LambdaParser where
 
 import Prelude hiding (print)
 import Control.Monad.Error
@@ -14,7 +14,8 @@ import System.Console.Readline
 import System.IO hiding (print)
 import System.IO.Error hiding (try)
 
-import LPH
+import Common
+import LambdaAST
 
 putstrln x = putStrLn x
 simplyTyped = makeTokenParser (haskellStyle { identStart = letter <|> P.char '_',

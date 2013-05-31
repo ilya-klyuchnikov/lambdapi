@@ -1,4 +1,4 @@
-module TypingLP where
+module LambdaPiCheck where
 
 import Prelude hiding (print)
 import Control.Monad.Error
@@ -8,8 +8,11 @@ import Data.Char
 import Text.PrettyPrint.HughesPJ hiding (parens)
 import qualified Text.PrettyPrint.HughesPJ as PP
 
-import LPH
-import PrinterLP
+import Common
+import LambdaPiAST
+import LambdaPiEval
+import LambdaPiQuote
+import LambdaPiPrinter
 
 iType0_ :: (NameEnv Value_,Context_) -> ITerm_ -> Result Type_
 iType0_ = iType_ 0
@@ -129,3 +132,45 @@ cType_ ii g (Refl_ a z) (VEq_ bVal xVal yVal) =
               (throwError "type mismatch")
 cType_ ii g _ _
   =     throwError "type mismatch"
+
+iSubst_ :: Int -> ITerm_ -> ITerm_ -> ITerm_
+iSubst_ ii i'   (Ann_ c c')     =  Ann_ (cSubst_ ii i' c) (cSubst_ ii i' c')
+
+iSubst_ ii r  Star_           =  Star_  
+iSubst_ ii r  (Pi_ ty ty')    =  Pi_  (cSubst_ ii r ty) (cSubst_ (ii + 1) r ty')
+iSubst_ ii i' (Bound_ j)      =  if ii == j then i' else Bound_ j
+iSubst_ ii i' (Free_ y)       =  Free_ y
+iSubst_ ii i' (i :$: c)       =  iSubst_ ii i' i :$: cSubst_ ii i' c
+iSubst_ ii r  Nat_            =  Nat_
+iSubst_ ii r  (NatElim_ m mz ms n)
+                              =  NatElim_ (cSubst_ ii r m)
+                                          (cSubst_ ii r mz) (cSubst_ ii r ms)
+                                          (cSubst_ ii r ms)
+iSubst_ ii r  (Vec_ a n)      =  Vec_ (cSubst_ ii r a) (cSubst_ ii r n)
+iSubst_ ii r  (VecElim_ a m mn mc n xs)
+                              =  VecElim_ (cSubst_ ii r a) (cSubst_ ii r m)
+                                          (cSubst_ ii r mn) (cSubst_ ii r mc)
+                                          (cSubst_ ii r n) (cSubst_ ii r xs)
+iSubst_ ii r  (Eq_ a x y)     =  Eq_ (cSubst_ ii r a)
+                                     (cSubst_ ii r x) (cSubst_ ii r y)
+iSubst_ ii r  (EqElim_ a m mr x y eq)
+                              =  VecElim_ (cSubst_ ii r a) (cSubst_ ii r m)
+                                          (cSubst_ ii r mr) (cSubst_ ii r x)
+                                          (cSubst_ ii r y) (cSubst_ ii r eq)
+iSubst_ ii r  (Fin_ n)        =  Fin_ (cSubst_ ii r n)
+iSubst_ ii r  (FinElim_ m mz ms n f)
+                              =  FinElim_ (cSubst_ ii r m)
+                                          (cSubst_ ii r mz) (cSubst_ ii r ms)
+                                          (cSubst_ ii r n) (cSubst_ ii r f)
+cSubst_ :: Int -> ITerm_ -> CTerm_ -> CTerm_
+cSubst_ ii i' (Inf_ i)      =  Inf_ (iSubst_ ii i' i)
+cSubst_ ii i' (Lam_ c)      =  Lam_ (cSubst_ (ii + 1) i' c)
+cSubst_ ii r  Zero_         =  Zero_
+cSubst_ ii r  (Succ_ n)     =  Succ_ (cSubst_ ii r n)
+cSubst_ ii r  (Nil_ a)      =  Nil_ (cSubst_ ii r a)
+cSubst_ ii r  (Cons_ a n x xs)
+                            =  Cons_ (cSubst_ ii r a) (cSubst_ ii r x)
+                                     (cSubst_ ii r x) (cSubst_ ii r xs)
+cSubst_ ii r  (Refl_ a x)   =  Refl_ (cSubst_ ii r a) (cSubst_ ii r x)
+cSubst_ ii r  (FZero_ n)    =  FZero_ (cSubst_ ii r n)
+cSubst_ ii r  (FSucc_ n k)  =  FSucc_ (cSubst_ ii r n) (cSubst_ ii r k)

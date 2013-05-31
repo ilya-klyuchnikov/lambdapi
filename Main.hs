@@ -14,12 +14,23 @@ import System.Console.Readline
 import System.IO hiding (print)
 import System.IO.Error
 
-import LPH
-import Parser
-import ParserLP
-import Printer
-import PrinterLP
-import TypingLP
+import Common
+import LambdaAST
+import LambdaEval
+import LambdaCheck
+import LambdaQuote
+
+import LambdaPiAST
+import LambdaPiEval
+import LambdaPiCheck
+import LambdaPiQuote
+
+import LambdaParser
+import LambdaPiParser
+import LambdaPrinter
+import LambdaPiPrinter
+
+import REPL
 
 readevalprint :: Interpreter i c v t tinf inf -> State v inf -> IO ()
 readevalprint int state@(inter, out, ve, te) =
@@ -46,21 +57,7 @@ readevalprint int state@(inter, out, ve, te) =
                              "Type :? for help.")
       --  enter loop
       rec int state
-data Command = TypeOf String
-             | Compile CompileForm
-             | Browse
-             | Quit
-             | Help
-             | Noop
- 
-data CompileForm = CompileInteractive  String
-                 | CompileFile         String
 
-data InteractiveCommand = Cmd [String] String (String -> Command) String
-
---type NameEnv v = [(Name, v)]
-type Ctx inf = [(Name, inf)]
-type State v inf = (Bool, String, NameEnv v, Ctx inf)
 
 commands :: [InteractiveCommand]
 commands
@@ -131,19 +128,6 @@ compilePhrase int state@(inter, out, ve, te) x =
   do
     x <- parseIO "<interactive>" (isparse int) x
     maybe (return state) (handleStmt int state) x
-
-data Interpreter i c v t tinf inf =
-  I { iname :: String,
-      iprompt :: String,
-      iitype :: NameEnv v -> Ctx inf -> i -> Result t,
-      iquote :: v -> c,
-      ieval  :: NameEnv v -> i -> v,
-      ihastype :: t -> inf,
-      icprint :: c -> Doc,
-      itprint :: t -> Doc,
-      iiparse :: CharParser () i,
-      isparse :: CharParser () (Stmt i tinf),
-      iassume :: State v inf -> (String, tinf) -> IO (State v inf) }
  
 st :: Interpreter ITerm CTerm Value Type Info Info
 st = I { iname = "the simply typed lambda calculus",

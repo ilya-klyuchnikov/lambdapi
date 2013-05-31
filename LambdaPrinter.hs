@@ -1,6 +1,4 @@
-module Printer where
-
-import LPH
+module LambdaPrinter where
 
 import Prelude hiding (print)
 import Control.Monad.Error
@@ -15,6 +13,9 @@ import Text.ParserCombinators.Parsec.Language
 import System.Console.Readline
 import System.IO hiding (print)
 import System.IO.Error
+
+import Common
+import LambdaAST
 
 tPrint :: Int -> Type -> Doc
 tPrint p (TFree (Global s))  =  text s

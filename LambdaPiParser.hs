@@ -1,21 +1,14 @@
-module ParserLP where
+module LambdaPiParser where
 
-import Prelude hiding (print)
-import Control.Monad.Error
 import Data.List
-import Data.Char
-import Text.PrettyPrint.HughesPJ hiding (parens)
-import qualified Text.PrettyPrint.HughesPJ as PP
 import Text.ParserCombinators.Parsec hiding (parse, State)
 import qualified Text.ParserCombinators.Parsec as P
 import Text.ParserCombinators.Parsec.Token
 import Text.ParserCombinators.Parsec.Language
-import System.Console.Readline
-import System.IO hiding (print)
-import System.IO.Error hiding (try)
 
-import LPH
-import Parser
+import Common
+import LambdaPiAST
+import LambdaParser
 
 parseStmt_ :: [String] -> CharParser () (Stmt ITerm_ CTerm_)
 parseStmt_ e =

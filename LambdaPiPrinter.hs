@@ -1,4 +1,4 @@
-module PrinterLP where
+module LambdaPiPrinter where
 
 import Prelude hiding (print)
 import Control.Monad.Error
@@ -14,7 +14,8 @@ import System.Console.Readline
 import System.IO hiding (print)
 import System.IO.Error
 
-import LPH
+import Common
+import LambdaPiAST
 
 iPrint_ :: Int -> Int -> ITerm_ -> Doc
 iPrint_ p ii (Ann_ c ty)       =  parensIf (p > 1) (cPrint_ 2 ii c <> text " :: " <> cPrint_ 0 ii ty)
