@@ -14,10 +14,11 @@ cEval_ (Cons_ a n x xs)  d  =  VCons_  (cEval_ a d) (cEval_ n d)
 cEval_ (Refl_ a x)       d  =  VRefl_ (cEval_ a d) (cEval_ x d)
 cEval_ (FZero_ n)    d  =  VFZero_ (cEval_ n d)
 cEval_ (FSucc_ n f)  d  =  VFSucc_ (cEval_ n d) (cEval_ f d)
+
 iEval_ :: ITerm_ -> (NameEnv Value_,Env_) -> Value_
-iEval_ (Ann_  c _)       d  =  cEval_ c d
+iEval_ (Ann_  c _)     d  =  cEval_ c d
 iEval_ Star_           d  =  VStar_   
-iEval_ (Pi_ ty ty')    d  =  VPi_ (cEval_ ty d) (\ x -> cEval_ ty' (((\(e, d) -> (e,  (x : d))) d)))   
+iEval_ (Pi_ ty ty1)    d  =  VPi_ (cEval_ ty d) (\ x -> cEval_ ty1 (((\(e, d) -> (e,  (x : d))) d)))
 iEval_ (Free_  x)      d  =  case lookup x (fst d) of Nothing ->  (vfree_ x); Just v -> v 
 iEval_ (Bound_  ii)    d  =  (snd d) !! ii
 iEval_ (i :$: c)       d  =  vapp_ (iEval_ i d) (cEval_ c d)
@@ -28,7 +29,7 @@ iEval_ (NatElim_ m mz ms n)  d
           rec nVal =
             case nVal of
               VZero_       ->  mzVal
-              VSucc_ k     ->  msVal `vapp_` k `vapp_` rec k
+              VSucc_ k     ->  (msVal `vapp_` k) `vapp_` rec k
               VNeutral_ n  ->  VNeutral_
                                (NNatElim_ (cEval_ m d) mzVal msVal n)
               _            ->  error "internal: eval natElim"

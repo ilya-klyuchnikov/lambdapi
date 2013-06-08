@@ -182,6 +182,7 @@ check :: Interpreter i c v t tinf inf -> State v inf -> String -> i
          -> ((t, v) -> IO ()) -> ((t, v) -> State v inf) -> IO (State v inf)
 check int state@(inter, out, ve, te) i t kp k =
                 do
+                  -- i: String, t: Type
                   --  typecheck and evaluate
                   x <- iinfer int ve te t
                   case x of

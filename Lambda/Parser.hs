@@ -29,8 +29,8 @@ parseBindings =
                        reserved simplyTyped "::"
                        t <- pInfo
                        return ([x], [t])
-  where
-    pInfo = fmap HasType (parseType 0 []) <|> fmap (const (HasKind Star)) (reserved simplyTyped "*")
+
+pInfo = fmap HasType (parseType 0 []) <|> fmap (const (HasKind Star)) (reserved simplyTyped "*")
 
 parseStmt :: [String] -> CharParser () (Stmt ITerm Info)
 parseStmt e =

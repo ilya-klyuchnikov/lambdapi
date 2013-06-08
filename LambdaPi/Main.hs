@@ -38,10 +38,10 @@ lpte =      [(Global "Zero", VNat_),
              (Global "Eq", VPi_ VStar_ (\ a -> VPi_ a (\ x -> VPi_ a (\ y -> VStar_)))),
              (Global "eqElim", VPi_ VStar_ (\ a ->
                               VPi_ (VPi_ a (\ x -> VPi_ a (\ y -> VPi_ (VEq_ a x y) (\ _ -> VStar_)))) (\ m ->
-                              VPi_ (VPi_ a (\ x -> m `vapp_` x `vapp_` x `vapp_` VRefl_ a x)) (\ _ ->
+                              VPi_ (VPi_ a (\ x -> ((m `vapp_` x) `vapp_` x) `vapp_` VRefl_ a x)) (\ _ ->
                               VPi_ a (\ x -> VPi_ a (\ y ->
                               VPi_ (VEq_ a x y) (\ eq ->
-                              m `vapp_` x `vapp_` y `vapp_` eq))))))),
+                              ((m `vapp_` x) `vapp_` y) `vapp_` eq))))))),
              (Global "FZero", VPi_ VNat_ (\ n -> VFin_ (VSucc_ n))),
              (Global "FSucc", VPi_ VNat_ (\ n -> VPi_ (VFin_ n) (\ f ->
                              VFin_ (VSucc_ n)))),
@@ -71,6 +71,7 @@ lpve =      [(Global "Zero", VZero_),
              (Global "finElim", cEval_ (Lam_ (Lam_ (Lam_ (Lam_ (Lam_ (Inf_ (FinElim_ (Inf_ (Bound_ 4)) (Inf_ (Bound_ 3)) (Inf_ (Bound_ 2)) (Inf_ (Bound_ 1)) (Inf_ (Bound_ 0))))))))) ([],[]))]
 
 lpassume state@(inter, out, ve, te) x t =
+  -- x: String, t: CTerm
   check lp state x (Ann_ t (Inf_ Star_))
         (\ (y, v) -> return ()) --  putStrLn (render (text x <> text " :: " <> cPrint_ 0 0 (quote0_ v))))
         (\ (y, v) -> (inter, out, ve, (Global x, v) : te))

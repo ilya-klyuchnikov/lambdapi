@@ -12,6 +12,7 @@ import LambdaPi.Printer
 
 iType0_ :: (NameEnv Value_,Context_) -> ITerm_ -> Result Type_
 iType0_ = iType_ 0
+
 iType_ :: Int -> (NameEnv Value_,Context_) -> ITerm_ -> Result Type_
 iType_ ii g (Ann_ e tyt )
   =     do  cType_  ii g tyt VStar_
@@ -33,8 +34,8 @@ iType_ ii g (Free_ x)
 iType_ ii g (e1 :$: e2)
   =     do  si <- iType_ ii g e1
             case si of
-              VPi_  ty ty'  ->  do  cType_ ii g e2 ty
-                                    return ( ty' (cEval_ e2 (fst g, [])))
+              VPi_  ty ty1  ->  do  cType_ ii g e2 ty
+                                    return ( ty1 (cEval_ e2 (fst g, [])))
               _                  ->  throwError "illegal application"
 iType_ ii g Nat_                  =  return VStar_
 iType_ ii g (NatElim_ m mz ms n)  =
@@ -136,7 +137,7 @@ iSubst_ ii r  Star_           =  Star_
 iSubst_ ii r  (Pi_ ty ty')    =  Pi_  (cSubst_ ii r ty) (cSubst_ (ii + 1) r ty')
 iSubst_ ii i' (Bound_ j)      =  if ii == j then i' else Bound_ j
 iSubst_ ii i' (Free_ y)       =  Free_ y
-iSubst_ ii i' (i :$: c)       =  iSubst_ ii i' i :$: cSubst_ ii i' c
+iSubst_ ii i' (i :$: c)       =  (iSubst_ ii i' i) :$: (cSubst_ ii i' c)
 iSubst_ ii r  Nat_            =  Nat_
 iSubst_ ii r  (NatElim_ m mz ms n)
                               =  NatElim_ (cSubst_ ii r m)

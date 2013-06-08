@@ -309,4 +309,11 @@ let pNPlus0isN =
           ( \ n' rec -> leibniz Nat Nat Succ (plus n' 0) n' rec )
   :: forall n :: Nat . Eq Nat (plus n 0) n
 
+assume (k1 :: Nat)
+assume (k2 :: Nat)
+assume (z :: Eq Nat k1 k2)
+symm
+
+let pp = Eq Nat (plus k1 0) k1
+let zz = pNPlus0isN k1 :: pp
 
