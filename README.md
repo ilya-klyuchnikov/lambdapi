@@ -32,3 +32,7 @@ Interpreter for lambda-Pi.
 Type :? for help.
 LP> :load prelude.lp
 ```
+
+### Open project in Leksah IDE
+
+Just point Leksah IDE to the file `lph.lkshw`
