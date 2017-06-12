@@ -1,7 +1,7 @@
 module REPL where
 
 import Prelude hiding (print)
-import Control.Monad.Error
+import Control.Monad.Except
 import Data.List
 import Data.Char
 import Text.PrettyPrint.HughesPJ hiding (parens)

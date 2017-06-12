@@ -1,6 +1,6 @@
 module LambdaPi.Check where
 
-import Control.Monad.Error
+import Control.Monad.Except
 
 import Text.PrettyPrint.HughesPJ hiding (parens)
 

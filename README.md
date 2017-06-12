@@ -1,6 +1,6 @@
 ## Dependently Typed Lambda Calculus
 
-This project is reorganization of the source code for the paper 
+This project is reorganization of the source code for the paper
 [A Tutorial Implementation of a Dependently Typed Lambda Calculus](http://www.andres-loeh.de/LambdaPi/).
 
 The goal of this project is to make code readable and understandable.
@@ -36,3 +36,15 @@ LP> :load prelude.lp
 ### Open project in Leksah IDE
 
 Just point Leksah IDE to the file `lph.lkshw`
+
+
+###
+
+Installing readline on mac:
+
+```
+cabal install readline --extra-include-dirs=/usr/local/opt/readline/include/ \
+                         --extra-lib-dirs=/usr/local/opt/readline/lib/ \
+                         --configure-option=--with-readline-includes=/usr/local/opt/readline/include/readline \
+                         --configure-option=--with-readline-libraries=/usr/local/opt/readline/lib
+```

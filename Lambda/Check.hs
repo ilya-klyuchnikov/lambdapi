@@ -1,6 +1,6 @@
 module Lambda.Check where
 
-import Control.Monad.Error
+import Control.Monad.Except
 
 import Lambda.AST
 import Common
@@ -13,10 +13,10 @@ cKind g (TFree x) Star
 cKind g (Fun kk kk') Star
   =  do  cKind g kk   Star
          cKind g kk'  Star
- 
+
 iType0 :: Context -> ITerm -> Result Type
 iType0 = iType 0
- 
+
 iType :: Int -> Context -> ITerm -> Result Type
 iType ii g (Ann e ty)
   =  do  cKind g ty Star
@@ -32,7 +32,7 @@ iType ii g (e1 :@: e2)
            Fun ty ty'  ->  do  cType ii g e2 ty
                                return ty'
            _           ->  throwError "illegal application"
- 
+
 cType :: Int -> Context -> CTerm -> Type -> Result ()
 cType ii g (Inf e) ty
   =  do  ty' <- iType ii g e

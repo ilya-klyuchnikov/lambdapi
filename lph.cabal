@@ -9,17 +9,17 @@ description: Dependently typed lambda calculus
 data-dir: ""
 
 executable st
-    build-depends: base >=4.6, mtl >=2.1.2, parsec >=3.1.3,
-                   pretty >=1.1.1.0, readline >=1.0.3.0
+    build-depends: base >=4.9.1.0, mtl >=2.2.1, parsec >=3.1.11,
+                   pretty >=1.1.3.5, readline >=1.0.3.0
     main-is: Lambda/Main.hs
     buildable: True
     hs-source-dirs: .
     other-modules: Common REPL Lambda.Check Lambda.AST Lambda.Eval
     ghc-options: -main-is Lambda.Main
- 
+
 executable lp
-    build-depends: base >=4.6, mtl >=2.1.2, parsec >=3.1.3,
-                   pretty >=1.1.1.0, readline >=1.0.3.0
+    build-depends: base >=4.9.1.0, mtl >=2.2.1, parsec >=3.1.11,
+                   pretty >=1.1.3.5, readline >=1.0.3.0
     main-is: LambdaPi/Main.hs
     buildable: True
     hs-source-dirs: .
@@ -27,4 +27,3 @@ executable lp
                    LambdaPi.Check LambdaPi.AST LambdaPi.Eval LambdaPi.Main
                    LambdaPi.Printer
     ghc-options: -main-is LambdaPi.Main
- 
