@@ -1,0 +1,37 @@
+name:                lph
+version:             0.1.0.0
+#synopsis:
+#description:
+homepage:            https://github.com/githubuser/dependent-types#readme
+license:             BSD3
+author:              Author name here
+maintainer:          example@example.com
+copyright:           2019 Author name here
+category:            Web
+extra-source-files:
+- README.md
+
+dependencies:
+  - base >=4.9.1.0
+  - mtl >=2.2.1
+  - parsec >=3.1.11
+  - pretty >=1.1.3.5
+  - readline >=1.0.3.0
+
+executables:
+  st:
+    ghc-options: -main-is Lambda.Main
+    other-modules: Common REPL Lambda.Check Lambda.AST Lambda.Eval 
+    source-dirs:
+      - Lambda
+      - .
+    main:             Main.hs
+  lp:
+    other-modules: Common REPL LambdaPi.Quote LambdaPi.Parser
+                   LambdaPi.Check LambdaPi.AST LambdaPi.Eval LambdaPi.Main
+                   LambdaPi.Printer
+    ghc-options: -main-is LambdaPi.Main
+    source-dirs:
+      - LambdaPi
+      - .
+    main:             Main.hs

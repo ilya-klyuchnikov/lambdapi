@@ -1,6 +1,6 @@
 module Lambda.Printer where
 
-import Text.PrettyPrint.HughesPJ hiding (parens)
+import Text.PrettyPrint.HughesPJ hiding (parens, (<>))
 
 import Common
 import Lambda.AST

@@ -4,7 +4,7 @@ import Prelude hiding (print)
 import Control.Monad.Except
 import Data.List
 import Data.Char
-import Text.PrettyPrint.HughesPJ hiding (parens)
+import Text.PrettyPrint.HughesPJ hiding (parens, (<>))
 import qualified Text.PrettyPrint.HughesPJ as PP
 import Text.ParserCombinators.Parsec hiding (parse, State)
 import qualified Text.ParserCombinators.Parsec as P

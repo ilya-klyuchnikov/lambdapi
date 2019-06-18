@@ -1,0 +1,12 @@
+resolver: lts-13.25
+
+packages:
+- .
+
+extra-deps:
+  - readline-1.0.3.0
+
+nix:
+  enable: true
+  packages: [readline]
+

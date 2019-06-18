@@ -1,29 +1,51 @@
-name: lph
-version: 0.1
-cabal-version: >=1.2
-build-type: Simple
-license: AllRightsReserved
-license-file: ""
-maintainer: Ilya Klyuchnikov
-description: Dependently typed lambda calculus
-data-dir: ""
+cabal-version: 1.12
 
-executable st
-    build-depends: base >=4.9.1.0, mtl >=2.2.1, parsec >=3.1.11,
-                   pretty >=1.1.3.5, readline >=1.0.3.0
-    main-is: Lambda/Main.hs
-    buildable: True
-    hs-source-dirs: .
-    other-modules: Common REPL Lambda.Check Lambda.AST Lambda.Eval
-    ghc-options: -main-is Lambda.Main
+-- This file has been generated from package.yaml by hpack version 0.31.1.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 2ee46fc5c7cf2e357c570520a905e5f53ab7aa8abb11fc130a7710f1576bc3a5
+
+name:           lph
+version:        0.1.0.0
+category:       Web
+homepage:       https://github.com/githubuser/dependent-types#readme
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2019 Author name here
+license:        BSD3
+build-type:     Simple
+extra-source-files:
+    README.md
 
 executable lp
-    build-depends: base >=4.9.1.0, mtl >=2.2.1, parsec >=3.1.11,
-                   pretty >=1.1.3.5, readline >=1.0.3.0
-    main-is: LambdaPi/Main.hs
-    buildable: True
-    hs-source-dirs: .
-    other-modules: Common REPL LambdaPi.Quote LambdaPi.Parser
-                   LambdaPi.Check LambdaPi.AST LambdaPi.Eval LambdaPi.Main
-                   LambdaPi.Printer
-    ghc-options: -main-is LambdaPi.Main
+  main-is: Main.hs
+  other-modules:
+      Common REPL LambdaPi.Quote LambdaPi.Parser LambdaPi.Check LambdaPi.AST LambdaPi.Eval LambdaPi.Main LambdaPi.Printer
+  hs-source-dirs:
+      LambdaPi
+      ./.
+  ghc-options: -main-is LambdaPi.Main
+  build-depends:
+      base >=4.9.1.0
+    , mtl >=2.2.1
+    , parsec >=3.1.11
+    , pretty >=1.1.3.5
+    , readline >=1.0.3.0
+  default-language: Haskell2010
+
+executable st
+  main-is: Main.hs
+  other-modules:
+      Common REPL Lambda.Check Lambda.AST Lambda.Eval
+  hs-source-dirs:
+      Lambda
+      ./.
+  ghc-options: -main-is Lambda.Main
+  build-depends:
+      base >=4.9.1.0
+    , mtl >=2.2.1
+    , parsec >=3.1.11
+    , pretty >=1.1.3.5
+    , readline >=1.0.3.0
+  default-language: Haskell2010
