@@ -1,2 +1,4 @@
 dist/
+dist-newstyle/
+.stack-work/
 *.lkshs

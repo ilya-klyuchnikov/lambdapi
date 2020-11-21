@@ -1,29 +1,42 @@
 name: lph
 version: 0.1
-cabal-version: >=1.2
+cabal-version: ==1.2
 build-type: Simple
 license: AllRightsReserved
-license-file: ""
+license-file: LICENSE
 maintainer: Ilya Klyuchnikov
 description: Dependently typed lambda calculus
-data-dir: ""
 
 executable st
     build-depends: base >=4.9.1.0, mtl >=2.2.1, parsec >=3.1.11,
                    pretty >=1.1.3.5, readline >=1.0.3.0
     main-is: Lambda/Main.hs
     buildable: True
-    hs-source-dirs: .
-    other-modules: Common REPL Lambda.Check Lambda.AST Lambda.Eval
+    hs-source-dirs: src
+    other-modules:
+        Common
+        REPL
+        Lambda.AST
+        Lambda.Check
+        Lambda.Eval
+        Lambda.Parser
+        Lambda.Printer
+        Lambda.Quote
     ghc-options: -main-is Lambda.Main
 
 executable lp
     build-depends: base >=4.9.1.0, mtl >=2.2.1, parsec >=3.1.11,
-                   pretty >=1.1.3.5, readline >=1.0.3.0
+                   pretty >=1.1.3.5
     main-is: LambdaPi/Main.hs
     buildable: True
-    hs-source-dirs: .
-    other-modules: Common REPL LambdaPi.Quote LambdaPi.Parser
-                   LambdaPi.Check LambdaPi.AST LambdaPi.Eval LambdaPi.Main
-                   LambdaPi.Printer
+    hs-source-dirs: src
+    other-modules:
+        Common
+        REPL
+        LambdaPi.AST
+        LambdaPi.Check
+        LambdaPi.Eval
+        LambdaPi.Parser
+        LambdaPi.Printer
+        LambdaPi.Quote
     ghc-options: -main-is LambdaPi.Main
