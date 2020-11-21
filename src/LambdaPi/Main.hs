@@ -70,11 +70,11 @@ lpve =      [(Global "Zero", VZero_),
              (Global "Fin", VLam_ (\ n -> VFin_ n)),
              (Global "finElim", cEval_ (Lam_ (Lam_ (Lam_ (Lam_ (Lam_ (Inf_ (FinElim_ (Inf_ (Bound_ 4)) (Inf_ (Bound_ 3)) (Inf_ (Bound_ 2)) (Inf_ (Bound_ 1)) (Inf_ (Bound_ 0))))))))) ([],[]))]
 
-lpassume state@(inter, out, ve, te) x t =
+lpassume state@(out, ve, te) x t =
   -- x: String, t: CTerm
   check lp state x (Ann_ t (Inf_ Star_))
         (\ (y, v) -> return ()) --  putStrLn (render (text x <> text " :: " <> cPrint_ 0 0 (quote0_ v))))
-        (\ (y, v) -> (inter, out, ve, (Global x, v) : te))
+        (\ (y, v) -> (out, ve, (Global x, v) : te))
 
 lp :: Interpreter ITerm_ CTerm_ Value_ Value_ CTerm_ Value_
 lp = I { iname = "lambda-Pi",
@@ -89,8 +89,8 @@ lp = I { iname = "lambda-Pi",
          isparse = parseStmt_ [],
          iassume = \ s (x, t) -> lpassume s x t }
 
-repLP :: Bool -> IO ()
-repLP b = readevalprint lp (b, [], lpve, lpte)
+repLP :: IO ()
+repLP = readevalprint lp ([], lpve, lpte)
 
 main :: IO ()
-main = repLP True
+main = repLP

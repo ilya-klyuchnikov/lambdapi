@@ -10,7 +10,6 @@ import Text.ParserCombinators.Parsec hiding (parse, State)
 import qualified Text.ParserCombinators.Parsec as P
 import Text.ParserCombinators.Parsec.Token
 import Text.ParserCombinators.Parsec.Language
-import System.Console.Readline
 import System.IO hiding (print)
 import System.IO.Error
 
@@ -23,14 +22,14 @@ data Command = TypeOf String
              | Quit
              | Help
              | Noop
- 
+
 data CompileForm = CompileInteractive  String
                  | CompileFile         String
 
 data InteractiveCommand = Cmd [String] String (String -> Command) String
 
 type Ctx inf = [(Name, inf)]
-type State v inf = (Bool, String, NameEnv v, Ctx inf)
+type State v inf = (String, NameEnv v, Ctx inf)
 
 data Interpreter i c v t tinf inf =
   I { iname :: String,
@@ -74,27 +73,25 @@ parseIO f p x = case P.parse (whiteSpace dummy >> p >>= \ x -> eof >> return x) 
                   Right r -> return (Just r)
 
 readevalprint :: Interpreter i c v t tinf inf -> State v inf -> IO ()
-readevalprint int state@(inter, out, ve, te) =
+readevalprint int state@(out, ve, te) =
   let rec int state =
         do
-          x <- catchIOError
-                 (if inter
-                  then readline (iprompt int) 
-                  else fmap Just getLine)
-                 (\_ -> return Nothing)
+          putStr (iprompt int)
+          hFlush stdout
+          x <- catchIOError (fmap Just getLine) (\_ -> return Nothing)
           case x of
             Nothing   ->  return ()
-            Just ""   ->  rec int state
+            Just ""   ->
+              rec int state
             Just x    ->
               do
-                when inter (addHistory x)
                 c  <- interpretCommand x
                 state' <- handleCommand int state c
                 maybe (return ()) (rec int) state'
   in
     do
       --  welcome
-      when inter $ putStrLn ("Interpreter for " ++ iname int ++ ".\n" ++
+      putStrLn ("Interpreter for " ++ iname int ++ ".\n" ++
                              "Type :? for help.")
       --  enter loop
       rec int state
@@ -117,9 +114,9 @@ interpretCommand x
        return (Compile (CompileInteractive x))
 
 handleCommand :: Interpreter i c v t tinf inf -> State v inf -> Command -> IO (Maybe (State v inf))
-handleCommand int state@(inter, out, ve, te) cmd
+handleCommand int state@(out, ve, te) cmd
   =  case cmd of
-       Quit   ->  when (not inter) (putStrLn "!@#$^&*") >> return Nothing
+       Quit   ->  (putStrLn "!@#$^&*") >> return Nothing
        Noop   ->  return (Just state)
        Help   ->  putStr (helpTxt commands) >> return (Just state)
        TypeOf x ->
@@ -134,36 +131,36 @@ handleCommand int state@(inter, out, ve, te) cmd
                                  CompileInteractive s -> compilePhrase int state s
                                  CompileFile f        -> compileFile int state f
                       return (Just state)
- 
+
 compileFile :: Interpreter i c v t tinf inf -> State v inf -> String -> IO (State v inf)
-compileFile int state@(inter, out, ve, te) f =
+compileFile int state@(out, ve, te) f =
   do
     x <- readFile f
     stmts <- parseIO f (many (isparse int)) x
     maybe (return state) (foldM (handleStmt int) state) stmts
 
 compilePhrase :: Interpreter i c v t tinf inf -> State v inf -> String -> IO (State v inf)
-compilePhrase int state@(inter, out, ve, te) x =
+compilePhrase int state@(out, ve, te) x =
   do
     x <- parseIO "<interactive>" (isparse int) x
     maybe (return state) (handleStmt int state) x
 
- 
+
 iinfer int d g t =
   case iitype int d g t of
     Left e -> putStrLn e >> return Nothing
     Right v -> return (Just v)
- 
+
 handleStmt :: Interpreter i c v t tinf inf
               -> State v inf -> Stmt i tinf -> IO (State v inf)
-handleStmt int state@(inter, out, ve, te) stmt =
+handleStmt int state@(out, ve, te) stmt =
   do
     case stmt of
-        Assume ass -> foldM (iassume int) state ass 
+        Assume ass -> foldM (iassume int) state ass
         Let x e    -> checkEval x e
         Eval e     -> checkEval it e
         PutStrLn x -> putStrLn x >> return state
-        Out f      -> return (inter, f, ve, te)
+        Out f      -> return (f, ve, te)
   where
     --  checkEval :: String -> i -> IO (State v inf)
     checkEval i t =
@@ -176,11 +173,11 @@ handleStmt int state@(inter, out, ve, te) stmt =
                                                 else render (text i <> text " :: " <> itprint int y)
                        putStrLn outtext
                        unless (null out) (writeFile out (process outtext)))
-        (\ (y, v) -> (inter, "", (Global i, v) : ve, (Global i, ihastype int y) : te))
- 
+        (\ (y, v) -> ("", (Global i, v) : ve, (Global i, ihastype int y) : te))
+
 check :: Interpreter i c v t tinf inf -> State v inf -> String -> i
          -> ((t, v) -> IO ()) -> ((t, v) -> State v inf) -> IO (State v inf)
-check int state@(inter, out, ve, te) i t kp k =
+check int state@(out, ve, te) i t kp k =
                 do
                   -- i: String, t: Type
                   --  typecheck and evaluate
@@ -200,4 +197,3 @@ check int state@(inter, out, ve, te) i t kp k =
 it = "it"
 process :: String -> String
 process = unlines . map (\ x -> "< " ++ x) . lines
-

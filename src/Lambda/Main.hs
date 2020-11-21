@@ -23,10 +23,10 @@ st = I { iname = "the simply typed lambda calculus",
          isparse = parseStmt [],
          iassume = \ s (x, t) -> stassume s x t }
 
-stassume state@(inter, out, ve, te) x t = return (inter, out, ve, (Global x, t) : te)
+stassume state@(out, ve, te) x t = return (out, ve, (Global x, t) : te)
 
-repST :: Bool -> IO ()
-repST b = readevalprint st (b, [], [], [])
+repST :: IO ()
+repST = readevalprint st ([], [], [])
 
 main :: IO ()
-main = repST True
+main = repST

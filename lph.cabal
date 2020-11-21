@@ -8,11 +8,17 @@ maintainer: Ilya Klyuchnikov
 description: Dependently typed lambda calculus
 
 executable st
-    build-depends: base >=4.9.1.0, mtl >=2.2.1, parsec >=3.1.11,
-                   pretty >=1.1.3.5, readline >=1.0.3.0
-    main-is: Lambda/Main.hs
-    buildable: True
-    hs-source-dirs: src
+    build-depends:
+        base >=4.9.1.0,
+        mtl >=2.2.1,
+        parsec >=3.1.11,
+        pretty >=1.1.3.5
+    main-is:
+        Lambda/Main.hs
+    buildable:
+        True
+    hs-source-dirs:
+        src
     other-modules:
         Common
         REPL
@@ -25,8 +31,11 @@ executable st
     ghc-options: -main-is Lambda.Main
 
 executable lp
-    build-depends: base >=4.9.1.0, mtl >=2.2.1, parsec >=3.1.11,
-                   pretty >=1.1.3.5
+    build-depends:
+        base >=4.9.1.0,
+        mtl >=2.2.1,
+        parsec >=3.1.11,
+        pretty >=1.1.3.5
     main-is: LambdaPi/Main.hs
     buildable: True
     hs-source-dirs: src
