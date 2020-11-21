@@ -1,9 +1,7 @@
+cabal-version: 3.0
 name: lph
 version: 0.1
-cabal-version: ==1.2
 build-type: Simple
-license: AllRightsReserved
-license-file: LICENSE
 maintainer: Ilya Klyuchnikov
 description: Dependently typed lambda calculus
 
@@ -29,6 +27,7 @@ executable st
         Lambda.Printer
         Lambda.Quote
     ghc-options: -main-is Lambda.Main
+    default-language: Haskell2010
 
 executable lp
     build-depends:
@@ -49,3 +48,4 @@ executable lp
         LambdaPi.Printer
         LambdaPi.Quote
     ghc-options: -main-is LambdaPi.Main
+    default-language: Haskell2010

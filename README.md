@@ -14,9 +14,7 @@ The goal of this project is to make reading and navigation of the code as simple
 Simply Typed Lambda Calculus
 
 ```
-$ cabal configure
-$ cabal build
-$ ./dist/build/st/st
+$ stack run st
 Interpreter for the simply typed lambda calculus.
 Type :? for help.
 ST> :load prelude.st
@@ -25,26 +23,8 @@ ST> :load prelude.st
 Dependently Typed Lambda Calculus
 
 ```
-$ cabal configure
-$ cabal build
-$ ./dist/build/lp/lp
+$ stack run lp
 Interpreter for lambda-Pi.
 Type :? for help.
 LP> :load prelude.lp
-```
-
-### Open project in Leksah IDE
-
-Just point Leksah IDE to the file `lph.lkshw`
-
-
-###
-
-Installing readline on mac:
-
-```
-cabal install readline --extra-include-dirs=/usr/local/opt/readline/include/ \
-                         --extra-lib-dirs=/usr/local/opt/readline/lib/ \
-                         --configure-option=--with-readline-includes=/usr/local/opt/readline/include/readline \
-                         --configure-option=--with-readline-libraries=/usr/local/opt/readline/lib
 ```
