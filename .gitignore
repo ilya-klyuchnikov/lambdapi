@@ -1,4 +1,3 @@
-dist/
-dist-newstyle/
 .stack-work/
-*.lkshs
+.idea/
+*.iml

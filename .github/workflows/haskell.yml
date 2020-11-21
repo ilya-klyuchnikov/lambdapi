@@ -1,0 +1,14 @@
+on: [push]
+name: build
+jobs:
+  runhaskell:
+    name: stack build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-haskell@v1.1.4
+        with:
+          ghc-version: '8.8.4'
+          enable-stack: true
+          stack-version: '2.5.1'
+      - run: stack --system-ghc build
