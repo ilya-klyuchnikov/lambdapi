@@ -1,6 +1,6 @@
 module REPL where
 
-import Prelude hiding (print)
+import Prelude hiding (print, (<>))
 import Control.Monad.Except
 import Data.List
 import Data.Char
