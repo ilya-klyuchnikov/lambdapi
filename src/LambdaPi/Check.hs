@@ -84,14 +84,31 @@ iType_ i g (EqElim_ a m mr x y eq) =
       let mVal = cEval_ m (fst g, [])
       cType_ i g mr
         (VPi_ aVal (\ x ->
-         foldl vapp_ mVal [x, x]))
+         foldl vapp_ mVal [x, x, VRefl_ aVal x]))
       cType_ i g x aVal
       let xVal = cEval_ x (fst g, [])
       cType_ i g y aVal
       let yVal = cEval_ y (fst g, [])
       cType_ i g eq (VEq_ aVal xVal yVal)
       let eqVal = cEval_ eq (fst g, [])
-      return (foldl vapp_ mVal [xVal, yVal])
+      return (foldl vapp_ mVal [xVal, yVal, eqVal])
+iType_ ii g (Fin_ n) =
+  do  cType_ ii g n VNat_
+      return VStar_ 
+iType_ ii g (FinElim_ m mz ms n f) =
+  do  cType_ ii g m (VPi_ VNat_ (\k -> VPi_ (VFin_ k) (const VStar_)))
+      let mVal  = cEval_ m (fst g, [])
+      cType_ ii g n VNat_
+      let nVal = cEval_ n (fst g, [])
+      cType_ ii g mz (VPi_ VNat_ (\k -> mVal `vapp_` VSucc_ k `vapp_` VFZero_ k))
+      cType_ ii g ms (VPi_ VNat_ (\k -> 
+          VPi_ (VFin_ k) (\fk -> 
+              VPi_ (mVal `vapp_` k `vapp_` fk) (\_ -> 
+                  mVal `vapp_` VSucc_ k `vapp_` VFSucc_ k fk))))
+      cType_ ii g f (VFin_ nVal)
+      let fVal = cEval_ f (fst g, [])
+      return (mVal `vapp_` nVal `vapp_` fVal)
+iType_ _ _ tm = throwError $ "No type match for " ++ render (iPrint_ 0 0 tm)
 
 cType_ :: Int -> (NameEnv Value_,Context_) -> CTerm_ -> Type_ -> Result ()
 cType_ ii g (Inf_ e) v 
@@ -127,6 +144,19 @@ cType_ ii g (Refl_ a z) (VEq_ bVal xVal yVal) =
       let zVal = cEval_ z (fst g, [])
       unless  (quote0_ zVal == quote0_ xVal && quote0_ zVal == quote0_ yVal)
               (throwError "type mismatch")
+cType_ ii g@(v,t) (FZero_ n) (VFin_ (VSucc_ mVal)) =
+  do
+    cType_ ii g n VNat_
+    let nVal = cEval_ n (v, [])
+    unless  (quote0_ nVal == quote0_ mVal)
+            (throwError "number mismatch FZero")
+cType_ ii g@(v,t) (FSucc_ n f') (VFin_ (VSucc_ mVal)) =
+  do
+    cType_ ii g n VNat_
+    let nVal = cEval_ n (v,[])
+    unless  (quote0_ nVal == quote0_ mVal)
+            (throwError "number mismatch FSucc")
+    cType_ ii g f' (VFin_ mVal)
 cType_ ii g _ _
   =     throwError "type mismatch"
 
@@ -142,7 +172,7 @@ iSubst_ ii r  Nat_            =  Nat_
 iSubst_ ii r  (NatElim_ m mz ms n)
                               =  NatElim_ (cSubst_ ii r m)
                                           (cSubst_ ii r mz) (cSubst_ ii r ms)
-                                          (cSubst_ ii r ms)
+                                          (cSubst_ ii r n)
 iSubst_ ii r  (Vec_ a n)      =  Vec_ (cSubst_ ii r a) (cSubst_ ii r n)
 iSubst_ ii r  (VecElim_ a m mn mc n xs)
                               =  VecElim_ (cSubst_ ii r a) (cSubst_ ii r m)
@@ -151,7 +181,7 @@ iSubst_ ii r  (VecElim_ a m mn mc n xs)
 iSubst_ ii r  (Eq_ a x y)     =  Eq_ (cSubst_ ii r a)
                                      (cSubst_ ii r x) (cSubst_ ii r y)
 iSubst_ ii r  (EqElim_ a m mr x y eq)
-                              =  VecElim_ (cSubst_ ii r a) (cSubst_ ii r m)
+                              =  EqElim_ (cSubst_ ii r a) (cSubst_ ii r m)
                                           (cSubst_ ii r mr) (cSubst_ ii r x)
                                           (cSubst_ ii r y) (cSubst_ ii r eq)
 iSubst_ ii r  (Fin_ n)        =  Fin_ (cSubst_ ii r n)
@@ -166,7 +196,7 @@ cSubst_ ii r  Zero_         =  Zero_
 cSubst_ ii r  (Succ_ n)     =  Succ_ (cSubst_ ii r n)
 cSubst_ ii r  (Nil_ a)      =  Nil_ (cSubst_ ii r a)
 cSubst_ ii r  (Cons_ a n x xs)
-                            =  Cons_ (cSubst_ ii r a) (cSubst_ ii r x)
+                            =  Cons_ (cSubst_ ii r a) (cSubst_ ii r n)
                                      (cSubst_ ii r x) (cSubst_ ii r xs)
 cSubst_ ii r  (Refl_ a x)   =  Refl_ (cSubst_ ii r a) (cSubst_ ii r x)
 cSubst_ ii r  (FZero_ n)    =  FZero_ (cSubst_ ii r n)
