@@ -92,7 +92,7 @@ iType_ i g (EqElim_ a m mr x y eq) =
       cType_ i g eq (VEq_ aVal xVal yVal)
       let eqVal = cEval_ eq (fst g, [])
       return (foldl vapp_ mVal [xVal, yVal, eqVal])
-iType_ ii g (Fin_ n) = -- this literally was not in
+iType_ ii g (Fin_ n) =
   do  cType_ ii g n VNat_
       return VStar_ 
 iType_ ii g (FinElim_ m mz ms n f) =
